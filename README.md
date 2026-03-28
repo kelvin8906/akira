@@ -96,7 +96,7 @@ This software was built with reference/code from:
 - [yellows8](https://github.com/devkitPro/curl/commits/libnx-backend/) for the work on the libnx backend which I used and updated for curl 8.18.0
 - [xfangfang](https://github.com/xfangfang), [dragonflylee](https://github.com/dragonflylee), and [XITRIX](https://github.com/XITRIX) for all the work on borealis, moonlight, wiliwili, and switchfin which have made developing homebrew a much smoother experience due to all the examples avaliable.
 - [kkwong](https://git.sr.ht/~kkwong/chiaki) for the initial hwacel and rumble patches
-- H0neyBadger for the initial switch port
+- H0neyBadger for the initial switch port, as well as all switch/chiaki contributors especially Egoistically and kkwong
 - [micro-ecc](https://github.com/kmackay/micro-ecc) for the ECDH implementation that was vendored in.
 - [vecteezy](https://www.vecteezy.com/vector-art/67445984-adorable-capybara-illustration-enjoying-a-drink) for the capybara logo.
 
