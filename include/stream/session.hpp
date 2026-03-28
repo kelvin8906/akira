@@ -60,6 +60,9 @@ public:
     int getHapticBase() const;
     void setHapticBase(int base);
     void setRumbleStrength(float strength);
+    void setRumbleFreqs(float freqLow, float freqHigh);
+    void setEnvelopeDecay(float decay);
+    void setEnvelopeAttack(float attack);
 
     ~Session();
 

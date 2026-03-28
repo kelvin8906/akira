@@ -33,6 +33,27 @@ void Session::setRumbleStrength(float strength)
         m_haptic_manager->setRumbleStrength(strength);
 }
 
+void Session::setRumbleFreqs(float freqLow, float freqHigh)
+{
+    if (m_haptic_manager)
+    {
+        m_haptic_manager->setRumbleFreqLow(freqLow);
+        m_haptic_manager->setRumbleFreqHigh(freqHigh);
+    }
+}
+
+void Session::setEnvelopeDecay(float decay)
+{
+    if (m_haptic_manager)
+        m_haptic_manager->setEnvelopeDecay(decay);
+}
+
+void Session::setEnvelopeAttack(float attack)
+{
+    if (m_haptic_manager)
+        m_haptic_manager->setEnvelopeAttack(attack);
+}
+
 void Session::SetLogger(ChiakiLog* log)
 {
     this->log = log;

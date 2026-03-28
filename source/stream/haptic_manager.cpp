@@ -17,16 +17,15 @@ void HapticManager::setRumble(uint8_t left, uint8_t right)
     if (SettingsManager::getInstance()->getDebugChiakiLog() && (left > 0 || right > 0))
         brls::Logger::info("setRumble: left={}, right={}, strength={:.2f}", left, right, m_rumble_strength);
 
-    // Convert uint8 (0-255) to float (0.0-1.0), apply strength multiplier
-    float leftAmp = ((float)left / 255.0f) * m_rumble_strength;
-    float rightAmp = ((float)right / 255.0f) * m_rumble_strength;
+    if (left > 160) left = 160;
+    if (right > 160) right = 160;
 
-    // Convert back to unsigned short (0-65535) for Borealis
-    unsigned short lowFreqMotor = (unsigned short)(leftAmp * 65535.0f);
-    unsigned short highFreqMotor = (unsigned short)(rightAmp * 65535.0f);
+    float leftAmp = (left > 0) ? ((float)left / 255.0f) * m_rumble_strength : 0.0f;
+    float rightAmp = (right > 0) ? ((float)right / 255.0f) * m_rumble_strength : 0.0f;
+    float amp = leftAmp > rightAmp ? leftAmp : rightAmp;
 
     auto* inputMgr = brls::Application::getPlatform()->getInputManager();
-    inputMgr->sendRumble(0, lowFreqMotor, highFreqMotor);
+    inputMgr->sendRumbleRaw(0, m_freq_low, m_freq_high, amp, amp);
 }
 
 void HapticManager::processHapticAudio(uint8_t* buf, size_t buf_size)
@@ -63,19 +62,17 @@ void HapticManager::setHapticRumble(uint8_t left, uint8_t right)
     m_haptic_val = val;
     m_haptic_lock_time = std::chrono::high_resolution_clock::now();
 
-    // Calculate amplitude based on haptic base frequency
     float amplitude = (float)val / (float)hapticBase;
     if (amplitude > 1.0f) amplitude = 1.0f;
-
-    // Apply rumble strength multiplier
     amplitude *= m_rumble_strength;
 
-    // Convert amplitude (0.0-1.0) to unsigned short (0-65535) for sendRumble API
-    unsigned short motorValue = (unsigned short)(amplitude * 65535.0f);
+    if (amplitude >= m_envelope)
+        m_envelope = m_envelope * (1.0f - m_envelope_attack) + amplitude * m_envelope_attack;
+    else
+        m_envelope = m_envelope * m_envelope_decay + amplitude * (1.0f - m_envelope_decay);
 
-    // Use Borealis InputManager
     auto* inputMgr = brls::Application::getPlatform()->getInputManager();
-    inputMgr->sendRumble(0, motorValue, motorValue);
+    inputMgr->sendRumbleRaw(0, m_freq_low, m_freq_high, m_envelope, m_envelope);
 }
 
 void HapticManager::cleanupHaptic()
@@ -89,15 +86,19 @@ void HapticManager::cleanupHaptic()
     }
     else if (ms > 30)
     {
-        setHapticRumble(0, 0);
+        m_envelope = 0.0f;
+        m_haptic_val = 0;
         m_haptic_lock = false;
+        auto* inputMgr = brls::Application::getPlatform()->getInputManager();
+        inputMgr->sendRumbleRaw(0, 0.0f, 0.0f, 0.0f, 0.0f);
     }
 }
 
 void HapticManager::cleanup()
 {
-    // Stop any active vibration
-    setHapticRumble(0, 0);
+    m_envelope = 0.0f;
     m_haptic_lock = false;
     m_haptic_val = 0;
+    auto* inputMgr = brls::Application::getPlatform()->getInputManager();
+    inputMgr->sendRumbleRaw(0, 0.0f, 0.0f, 0.0f, 0.0f);
 }
