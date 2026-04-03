@@ -25,35 +25,7 @@ I'd also love to hear if you're using this application and it works well for you
 
 If you find a bug or have a feature request, please help out and open a PR with the fix/implemented feature. 
 
-
-<p align="center" width="100%">
-  <img src="readme/akira_hosts_020.jpg"
-</p>
-<p align="center">
-  <img src="readme/akira_remote_conn_holepunch.jpg">
-  <img src="readme/akira_bitrate.jpg">
-</p>
-<p align="center">
-  <img src="readme/akira_ingame_debug_2.jpg" >
-  <img src="readme/akira_ingame_debug.jpg" >
-</p>
-
-<p align="center">
-And some horribly compressed encodes to fit < 10mb:
-</p>
-<p align="center" width="100%">
-<video src="https://github.com/user-attachments/assets/1ae8a3e3-9123-43cf-ae2e-f038383ef87d" width="80%" controls></video>
-</p>
-
-<p align="center" width="100%">
-<video src="https://github.com/user-attachments/assets/13bff761-42a8-43d6-901c-4aca7dbc26f0" width="80%" controls></video>
-</p>
-
-
-## Blurb
-I initially started working on this when FW 21 broke chiaki-ng.The changes I was going to be making was very invasive, and so I took it out of tree first, switching to a homebrew nro that wraps chiaki-ng as a dependency. I may upstream this back into chiaki-ng eventually. 
-
-## Feature
+## Features
 [Read this](https://github.com/xlanor/akira/wiki/Additional-changes)
 
 The biggest feature change is the addition of PSN remote play. Thanks to the hard work by Streetpea on chiaki-ng and grill2010 for reverse engineering the PSN api, I just call whatever he has built. You should see two screens come up if this is successful.
@@ -77,6 +49,41 @@ At this point, I think I've tackled most of the major feature asks that I've see
 [Read this for remote](https://github.com/xlanor/akira/wiki/Registering-and-Connecting-(Remote-Network))
 
 Actually, just read the whole wiki.
+
+<p align="center" width="100%">
+  <img src="readme/akira_hosts_020.jpg"
+</p>
+<p align="center">
+  <img src="readme/akira_remote_conn_holepunch.jpg">
+</p>
+<p align="center" width="100%">
+  <img src="readme/akira_settings_1.jpg">
+  <img src="readme/akira_settings_2.jpg">
+  <img src="readme/akira_settings_3.jpg">
+  <img src="readme/akira_settings_4.jpg">
+  <img src="readme/akira_settings_5.jpg">
+  <img src="readme/akira_settings_6.jpg">
+  <img src="readme/akira_wireguard.jpg">
+  <img src="readme/akira_stream_menu.jpg">
+  <img src="readme/akira_stream_menu_remap.jpg">
+</p>
+<p align="center">
+  <img src="readme/akira_ingame_spiderman_1.jpg" >
+  <img src="readme/akira_ingame_jedi_1.jpg" >
+</p>
+
+<p align="center">
+And some horribly compressed encodes to fit < 10mb:
+</p>
+<p align="center" width="100%">
+<video src="https://github.com/user-attachments/assets/1ae8a3e3-9123-43cf-ae2e-f038383ef87d" width="80%" controls></video>
+</p>
+
+<p align="center" width="100%">
+<video src="https://github.com/user-attachments/assets/13bff761-42a8-43d6-901c-4aca7dbc26f0" width="80%" controls></video>
+</p>
+
+
 
 ---
 
