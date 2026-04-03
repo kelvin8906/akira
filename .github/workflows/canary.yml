@@ -134,7 +134,13 @@ jobs:
           cp akira.nro switch/akira.nro
           zip -r akira-canary.zip switch/
 
-      - name: Update canary release
+      - name: Delete existing canary release
+        run: gh release delete canary --yes --cleanup-tag || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+
+      - name: Create canary release
         uses: softprops/action-gh-release@b25b93d384199fc0fc8c2e126b2d937a0cbeb2ae # v2
         with:
           tag_name: canary

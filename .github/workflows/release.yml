@@ -150,3 +150,9 @@ jobs:
           generate_release_notes: true
           draft: false
           prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+          body: |
+            Please read the [README](https://github.com/${{ github.repository }}#readme) before getting started.
+
+            - [Features](https://github.com/${{ github.repository }}/wiki/Additional-changes)
+            - [Registering and Connecting (Local Network)](https://github.com/${{ github.repository }}/wiki/Registering-and-Connecting-(Local-Network))
+            - [Registering and Connecting (Remote Network)](https://github.com/${{ github.repository }}/wiki/Registering-and-Connecting-(Remote-Network))
