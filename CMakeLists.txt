@@ -300,7 +300,10 @@ if (USE_DEKO3D)
     execute_process(COMMAND ${NX_UAM_EXE} -s frag ${SHADER_DEFINES} -o "${SHADER_OUT_DIR}/video_fsh.dksh" "${SHADER_DIR}/video_fsh.glsl" TIMEOUT 5)
     execute_process(COMMAND ${NX_UAM_EXE} -s vert -o "${SHADER_OUT_DIR}/text_vsh.dksh" "${SHADER_DIR}/text_vsh.glsl" TIMEOUT 5)
     execute_process(COMMAND ${NX_UAM_EXE} -s frag -o "${SHADER_OUT_DIR}/text_fsh.dksh" "${SHADER_DIR}/text_fsh.glsl" TIMEOUT 5)
-    message(STATUS "Compiled video and text shaders to ${SHADER_OUT_DIR}")
+    execute_process(COMMAND ${NX_UAM_EXE} -s frag -o "${SHADER_OUT_DIR}/fsr_easu_fsh.dksh" "${SHADER_DIR}/fsr_easu_fsh.glsl" TIMEOUT 10)
+    execute_process(COMMAND ${NX_UAM_EXE} -s frag -o "${SHADER_OUT_DIR}/fsr_rcas_fsh.dksh" "${SHADER_DIR}/fsr_rcas_fsh.glsl" TIMEOUT 10)
+    execute_process(COMMAND ${NX_UAM_EXE} -s frag -o "${SHADER_OUT_DIR}/fsr_pass_fsh.dksh" "${SHADER_DIR}/fsr_pass_fsh.glsl" TIMEOUT 10)
+    message(STATUS "Compiled video, text, and FSR shaders to ${SHADER_OUT_DIR}")
 endif()
 
 # Build NRO

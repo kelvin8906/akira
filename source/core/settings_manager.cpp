@@ -341,6 +341,12 @@ void SettingsManager::parseTomlFile() {
             enableFileLogging = *val;
         if (auto val = config["enable_thread_affinity"].value<bool>())
             enableThreadAffinity = *val;
+        if (auto val = config["fsr_enabled"].value<bool>())
+            fsrEnabled = *val;
+        if (auto val = config["fsr_sharpness"].value<double>())
+            fsrSharpness = static_cast<float>(*val);
+        if (auto val = config["fsr_target_height"].value<int64_t>())
+            fsrTargetHeight = static_cast<int>(*val);
         if (auto val = config["debug_lwip_log"].value<bool>())
             debugLwipLog = *val;
         if (auto val = config["debug_wireguard_log"].value<bool>())
@@ -700,6 +706,12 @@ int SettingsManager::writeFile() {
     config.insert("request_idr_on_fec_failure", requestIdrOnFecFailure);
     config.insert("packet_loss_max", static_cast<double>(packetLossMax));
     config.insert("enable_file_logging", enableFileLogging);
+    if (fsrEnabled)
+        config.insert("fsr_enabled", fsrEnabled);
+    if (fsrSharpness != 0.2f)
+        config.insert("fsr_sharpness", static_cast<double>(fsrSharpness));
+    if (fsrTargetHeight != 1080)
+        config.insert("fsr_target_height", static_cast<int64_t>(fsrTargetHeight));
     if (enableThreadAffinity)
         config.insert("enable_thread_affinity", enableThreadAffinity);
     if (debugLwipLog)
@@ -1384,6 +1396,30 @@ float SettingsManager::getPacketLossMax() const {
 
 void SettingsManager::setPacketLossMax(float value) {
     packetLossMax = value;
+}
+
+bool SettingsManager::getFsrEnabled() const {
+    return fsrEnabled;
+}
+
+void SettingsManager::setFsrEnabled(bool enabled) {
+    fsrEnabled = enabled;
+}
+
+float SettingsManager::getFsrSharpness() const {
+    return fsrSharpness;
+}
+
+void SettingsManager::setFsrSharpness(float sharpness) {
+    fsrSharpness = sharpness;
+}
+
+int SettingsManager::getFsrTargetHeight() const {
+    return fsrTargetHeight;
+}
+
+void SettingsManager::setFsrTargetHeight(int height) {
+    fsrTargetHeight = height;
 }
 
 bool SettingsManager::getEnableFileLogging() const {

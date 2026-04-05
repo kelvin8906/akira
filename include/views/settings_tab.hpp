@@ -30,6 +30,9 @@ private:
     BRLS_BIND(brls::SelectorCell, gyroSourceSelector, "settings/gyroSource");
     BRLS_BIND(brls::BooleanCell, sleepOnExitToggle, "settings/sleepOnExit");
     BRLS_BIND(brls::DetailCell, buttonMappingCell, "settings/buttonMapping");
+    BRLS_BIND(brls::BooleanCell, fsrEnabledToggle, "settings/fsrEnabled");
+    BRLS_BIND(brls::SelectorCell, fsrTargetSelector, "settings/fsrTarget");
+    BRLS_BIND(brls::SelectorCell, fsrSharpnessSelector, "settings/fsrSharpness");
     BRLS_BIND(brls::BooleanCell, enableThreadAffinityToggle, "settings/enableThreadAffinity");
     BRLS_BIND(brls::BooleanCell, holepunchRetryToggle, "settings/holepunchRetry");
     BRLS_BIND(brls::BooleanCell, requestIdrOnFecFailureToggle, "settings/requestIdrOnFecFailure");
@@ -95,6 +98,10 @@ private:
     void initGyroSourceSelector();
     void initSleepOnExitToggle();
     void initButtonMappingCell();
+    void initFsrEnabledToggle();
+    void initFsrTargetSelector();
+    void initFsrSharpnessSelector();
+    void updateResolutionLabels();
     void initEnableThreadAffinityToggle();
     void initHolepunchRetryToggle();
     void initRequestIdrOnFecFailureToggle();

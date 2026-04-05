@@ -75,6 +75,10 @@ private:
     bool enableFileLogging = false;
     bool enableThreadAffinity = false;
 
+    bool fsrEnabled = false;
+    float fsrSharpness = 0.2f;
+    int fsrTargetHeight = 1080;
+
     // Debug logging settings
     bool debugLwipLog = false;
     bool debugWireguardLog = false;
@@ -286,7 +290,13 @@ public:
     void setSwipeRightEnabled(bool enabled);
     bool isButtonEnabled(uint32_t chiakiButton) const;
 
-    // Runtime state (not persisted)
+    bool getFsrEnabled() const;
+    void setFsrEnabled(bool enabled);
+    float getFsrSharpness() const;
+    void setFsrSharpness(float sharpness);
+    int getFsrTargetHeight() const;
+    void setFsrTargetHeight(int height);
+
     bool isStreamingActive() const;
     void setStreamingActive(bool active);
 

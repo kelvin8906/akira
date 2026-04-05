@@ -57,6 +57,9 @@ SettingsTab::SettingsTab() {
     initGyroSourceSelector();
     initSleepOnExitToggle();
     initButtonMappingCell();
+    initFsrEnabledToggle();
+    initFsrTargetSelector();
+    initFsrSharpnessSelector();
     initEnableThreadAffinityToggle();
     initHolepunchRetryToggle();
     initPsnAccountSection();
@@ -95,7 +98,10 @@ brls::View* SettingsTab::create() {
 }
 
 void SettingsTab::initLocalResolutionSelector() {
-    std::vector<std::string> options = {"360p", "540p", "720p", "1080p"};
+    bool fsr = settings->getFsrEnabled();
+    std::vector<std::string> options = fsr
+        ? std::vector<std::string>{"360p (FSR)", "540p (FSR)", "720p (FSR)", "1080p"}
+        : std::vector<std::string>{"360p", "540p", "720p", "1080p"};
 
     int currentIndex = 2;
     auto current = settings->getLocalVideoResolution();
@@ -599,6 +605,92 @@ void SettingsTab::initButtonMappingCell() {
         brls::Application::pushActivity(new brls::Activity(remapView), brls::TransitionAnimation::NONE);
         return true;
     });
+}
+
+void SettingsTab::initFsrEnabledToggle() {
+    bool currentValue = settings->getFsrEnabled();
+
+    fsrEnabledToggle->init(
+        "FSR Upscaling",
+        currentValue,
+        [this](bool isOn) {
+            settings->setFsrEnabled(isOn);
+            settings->writeFile();
+            updateResolutionLabels();
+        }
+    );
+}
+
+void SettingsTab::initFsrTargetSelector() {
+    std::vector<std::string> options = {"720p", "1080p", "1440p"};
+
+    int current = settings->getFsrTargetHeight();
+    int currentIndex = 1;
+    if (current <= 720) currentIndex = 0;
+    else if (current <= 1080) currentIndex = 1;
+    else currentIndex = 2;
+
+    fsrTargetSelector->init(
+        "FSR Target",
+        options,
+        currentIndex,
+        [](int selected) {},
+        [this](int selected) {
+            int height;
+            switch (selected) {
+                case 0: height = 720; break;
+                case 1: height = 1080; break;
+                case 2: height = 1440; break;
+                default: height = 1080; break;
+            }
+            settings->setFsrTargetHeight(height);
+            settings->writeFile();
+        }
+    );
+}
+
+void SettingsTab::initFsrSharpnessSelector() {
+    std::vector<std::string> options = {"Low", "Medium", "High"};
+
+    float current = settings->getFsrSharpness();
+    int currentIndex = 1;
+    if (current >= 0.4f) currentIndex = 0;
+    else if (current >= 0.1f) currentIndex = 1;
+    else currentIndex = 2;
+
+    fsrSharpnessSelector->init(
+        "FSR Sharpness",
+        options,
+        currentIndex,
+        [](int selected) {},
+        [this](int selected) {
+            float sharpness;
+            switch (selected) {
+                case 0: sharpness = 0.5f; break;
+                case 1: sharpness = 0.2f; break;
+                case 2: sharpness = 0.0f; break;
+                default: sharpness = 0.2f; break;
+            }
+            settings->setFsrSharpness(sharpness);
+            settings->writeFile();
+        }
+    );
+}
+
+void SettingsTab::updateResolutionLabels() {
+    bool fsr = settings->getFsrEnabled();
+
+    auto makeOptions = [fsr]() -> std::vector<std::string> {
+        if (fsr)
+            return {"360p (FSR)", "540p (FSR)", "720p (FSR)", "1080p"};
+        else
+            return {"360p", "540p", "720p", "1080p"};
+    };
+
+    auto options = makeOptions();
+    localResolutionSelector->setData(options);
+    remoteResolutionSelector->setData(options);
+    vpnResolutionSelector->setData(options);
 }
 
 void SettingsTab::initEnableThreadAffinityToggle() {

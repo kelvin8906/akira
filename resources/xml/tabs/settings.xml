@@ -322,6 +322,24 @@
             marginBottom="30">
 
             <brls:BooleanCell
+                id="settings/fsrEnabled"
+                title="FSR Upscaling"
+                marginLeft="15"
+                marginRight="15"/>
+
+            <brls:SelectorCell
+                id="settings/fsrTarget"
+                title="FSR Target"
+                marginLeft="15"
+                marginRight="15"/>
+
+            <brls:SelectorCell
+                id="settings/fsrSharpness"
+                title="FSR Sharpness"
+                marginLeft="15"
+                marginRight="15"/>
+
+            <brls:BooleanCell
                 id="settings/enableThreadAffinity"
                 title="Enable Thread Affinity"
                 marginLeft="15"
