@@ -1,5 +1,7 @@
 #version 460
 
+#define FSR_EASU_EARLY_OUT_THRESHOLD (8.0 / 255.0)
+
 layout (location = 0) in vec2 vTexCoord;
 layout (location = 0) out vec4 outColor;
 
@@ -88,48 +90,59 @@ void main()
     float Yi = gC.w, Yj = gC.z, Yk = gD.w, Yl = gD.z;
     float Yn = gC.y, Yo = gD.x;
 
-    vec2 dir = vec2(0.0);
-    float len = 0.0;
-    FsrEasuSet(dir, len, (1.0 - pp.x) * (1.0 - pp.y), Yb, Ye, Yf, Yg, Yj);
-    FsrEasuSet(dir, len, pp.x * (1.0 - pp.y),          Yc, Yf, Yg, Yh, Yk);
-    FsrEasuSet(dir, len, (1.0 - pp.x) * pp.y,          Yf, Yi, Yj, Yk, Yn);
-    FsrEasuSet(dir, len, pp.x * pp.y,                   Yg, Yj, Yk, Yl, Yo);
+    float minCenterY = min(min(Yf, Yg), min(Yj, Yk));
+    float maxCenterY = max(max(Yf, Yg), max(Yj, Yk));
+    float centerRange = maxCenterY - minCenterY;
 
-    vec2 dir2 = dir * dir;
-    float dirR = dir2.x + dir2.y;
-    bool zro = dirR < (1.0 / 32768.0);
-    dirR = APrxLoRsqF1(dirR);
-    dirR = zro ? 1.0 : dirR;
-    dir.x = zro ? 1.0 : dir.x;
-    dir *= vec2(dirR);
+    float finalY;
+    if (centerRange < FSR_EASU_EARLY_OUT_THRESHOLD)
+    {
+        float top = mix(Yf, Yg, pp.x);
+        float bottom = mix(Yj, Yk, pp.x);
+        finalY = mix(top, bottom, pp.y);
+    }
+    else
+    {
+        vec2 dir = vec2(0.0);
+        float len = 0.0;
+        FsrEasuSet(dir, len, (1.0 - pp.x) * (1.0 - pp.y), Yb, Ye, Yf, Yg, Yj);
+        FsrEasuSet(dir, len, pp.x * (1.0 - pp.y),          Yc, Yf, Yg, Yh, Yk);
+        FsrEasuSet(dir, len, (1.0 - pp.x) * pp.y,          Yf, Yi, Yj, Yk, Yn);
+        FsrEasuSet(dir, len, pp.x * pp.y,                   Yg, Yj, Yk, Yl, Yo);
 
-    len = len * 0.5;
-    len *= len;
+        vec2 dir2 = dir * dir;
+        float dirR = dir2.x + dir2.y;
+        bool zro = dirR < (1.0 / 32768.0);
+        dirR = APrxLoRsqF1(dirR);
+        dirR = zro ? 1.0 : dirR;
+        dir.x = zro ? 1.0 : dir.x;
+        dir *= vec2(dirR);
 
-    float stretch = (dir.x * dir.x + dir.y * dir.y) * APrxLoRcpF1(max(abs(dir.x), abs(dir.y)));
-    vec2 len2 = vec2(1.0 + (stretch - 1.0) * len, 1.0 + (-0.5) * len);
-    float lob = 0.5 + ((1.0 / 4.0 - 0.04) - 0.5) * len;
-    float clp = APrxLoRcpF1(lob);
+        len = len * 0.5;
+        len *= len;
 
-    float minY = min(min(Yf, Yg), min(Yj, Yk));
-    float maxY = max(max(Yf, Yg), max(Yj, Yk));
+        float stretch = (dir.x * dir.x + dir.y * dir.y) * APrxLoRcpF1(max(abs(dir.x), abs(dir.y)));
+        vec2 len2 = vec2(1.0 + (stretch - 1.0) * len, 1.0 + (-0.5) * len);
+        float lob = 0.5 + ((1.0 / 4.0 - 0.04) - 0.5) * len;
+        float clp = APrxLoRcpF1(lob);
 
-    float aC = 0.0;
-    float aW = 0.0;
-    FsrEasuTapY(aC, aW, vec2( 0.0,-1.0) - pp, dir, len2, lob, clp, Yb);
-    FsrEasuTapY(aC, aW, vec2( 1.0,-1.0) - pp, dir, len2, lob, clp, Yc);
-    FsrEasuTapY(aC, aW, vec2(-1.0, 1.0) - pp, dir, len2, lob, clp, Yi);
-    FsrEasuTapY(aC, aW, vec2( 0.0, 1.0) - pp, dir, len2, lob, clp, Yj);
-    FsrEasuTapY(aC, aW, vec2( 0.0, 0.0) - pp, dir, len2, lob, clp, Yf);
-    FsrEasuTapY(aC, aW, vec2(-1.0, 0.0) - pp, dir, len2, lob, clp, Ye);
-    FsrEasuTapY(aC, aW, vec2( 1.0, 1.0) - pp, dir, len2, lob, clp, Yk);
-    FsrEasuTapY(aC, aW, vec2( 2.0, 1.0) - pp, dir, len2, lob, clp, Yl);
-    FsrEasuTapY(aC, aW, vec2( 2.0, 0.0) - pp, dir, len2, lob, clp, Yh);
-    FsrEasuTapY(aC, aW, vec2( 1.0, 0.0) - pp, dir, len2, lob, clp, Yg);
-    FsrEasuTapY(aC, aW, vec2( 1.0, 2.0) - pp, dir, len2, lob, clp, Yo);
-    FsrEasuTapY(aC, aW, vec2( 0.0, 2.0) - pp, dir, len2, lob, clp, Yn);
+        float aC = 0.0;
+        float aW = 0.0;
+        FsrEasuTapY(aC, aW, vec2( 0.0,-1.0) - pp, dir, len2, lob, clp, Yb);
+        FsrEasuTapY(aC, aW, vec2( 1.0,-1.0) - pp, dir, len2, lob, clp, Yc);
+        FsrEasuTapY(aC, aW, vec2(-1.0, 1.0) - pp, dir, len2, lob, clp, Yi);
+        FsrEasuTapY(aC, aW, vec2( 0.0, 1.0) - pp, dir, len2, lob, clp, Yj);
+        FsrEasuTapY(aC, aW, vec2( 0.0, 0.0) - pp, dir, len2, lob, clp, Yf);
+        FsrEasuTapY(aC, aW, vec2(-1.0, 0.0) - pp, dir, len2, lob, clp, Ye);
+        FsrEasuTapY(aC, aW, vec2( 1.0, 1.0) - pp, dir, len2, lob, clp, Yk);
+        FsrEasuTapY(aC, aW, vec2( 2.0, 1.0) - pp, dir, len2, lob, clp, Yl);
+        FsrEasuTapY(aC, aW, vec2( 2.0, 0.0) - pp, dir, len2, lob, clp, Yh);
+        FsrEasuTapY(aC, aW, vec2( 1.0, 0.0) - pp, dir, len2, lob, clp, Yg);
+        FsrEasuTapY(aC, aW, vec2( 1.0, 2.0) - pp, dir, len2, lob, clp, Yo);
+        FsrEasuTapY(aC, aW, vec2( 0.0, 2.0) - pp, dir, len2, lob, clp, Yn);
 
-    float finalY = min(maxY, max(minY, aC / aW));
+        finalY = min(maxCenterY, max(minCenterY, aC / aW));
+    }
 
     vec2 chromaUV = (fp + pp + 0.5) * rcpSize;
     vec2 uv_raw = texture(chromaPlane, chromaUV).rg;
