@@ -74,6 +74,7 @@ private:
     float packetLossMax = 0.05f;
     bool enableFileLogging = false;
     bool enableThreadAffinity = false;
+    bool lowLatencyMode = false;
 
     // Debug logging settings
     bool debugLwipLog = false;
@@ -255,6 +256,9 @@ public:
 
     bool getEnableThreadAffinity() const;
     void setEnableThreadAffinity(bool enabled);
+
+    bool getLowLatencyMode() const;
+    void setLowLatencyMode(bool enabled);
 
     // Debug logging
     bool getDebugLwipLog() const;

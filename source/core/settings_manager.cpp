@@ -341,6 +341,8 @@ void SettingsManager::parseTomlFile() {
             enableFileLogging = *val;
         if (auto val = config["enable_thread_affinity"].value<bool>())
             enableThreadAffinity = *val;
+        if (auto val = config["low_latency_mode"].value<bool>())
+            lowLatencyMode = *val;
         if (auto val = config["debug_lwip_log"].value<bool>())
             debugLwipLog = *val;
         if (auto val = config["debug_wireguard_log"].value<bool>())
@@ -702,6 +704,8 @@ int SettingsManager::writeFile() {
     config.insert("enable_file_logging", enableFileLogging);
     if (enableThreadAffinity)
         config.insert("enable_thread_affinity", enableThreadAffinity);
+    if (lowLatencyMode)
+        config.insert("low_latency_mode", lowLatencyMode);
     if (debugLwipLog)
         config.insert("debug_lwip_log", debugLwipLog);
     if (debugWireguardLog)
@@ -1400,6 +1404,14 @@ bool SettingsManager::getEnableThreadAffinity() const {
 
 void SettingsManager::setEnableThreadAffinity(bool enabled) {
     enableThreadAffinity = enabled;
+}
+
+bool SettingsManager::getLowLatencyMode() const {
+    return lowLatencyMode;
+}
+
+void SettingsManager::setLowLatencyMode(bool enabled) {
+    lowLatencyMode = enabled;
 }
 
 bool SettingsManager::getDebugLwipLog() const {

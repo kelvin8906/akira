@@ -58,6 +58,7 @@ SettingsTab::SettingsTab() {
     initSleepOnExitToggle();
     initButtonMappingCell();
     initEnableThreadAffinityToggle();
+    initLowLatencyModeToggle();
     initHolepunchRetryToggle();
     initPsnAccountSection();
     initCompanionSection();
@@ -611,6 +612,20 @@ void SettingsTab::initEnableThreadAffinityToggle() {
             settings->setEnableThreadAffinity(isOn);
             settings->writeFile();
             brls::Logger::info("Thread affinity set to {} (requires restart)", isOn ? "true" : "false");
+        }
+    );
+}
+
+void SettingsTab::initLowLatencyModeToggle() {
+    bool currentValue = settings->getLowLatencyMode();
+
+    lowLatencyModeToggle->init(
+        "Low Latency Mode",
+        currentValue,
+        [this](bool isOn) {
+            settings->setLowLatencyMode(isOn);
+            settings->writeFile();
+            brls::Logger::info("Low latency mode set to {}", isOn ? "true" : "false");
         }
     );
 }

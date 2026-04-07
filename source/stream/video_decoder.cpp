@@ -1,5 +1,6 @@
 #include "stream/video_decoder.hpp"
 #include "core/exception.hpp"
+#include "core/settings_manager.hpp"
 #include "util/av_wrappers.hpp"
 #include <borealis.hpp>
 
@@ -102,7 +103,8 @@ bool VideoDecoder::initVideo(int video_width, int video_height)
     m_waiting_for_idr = true;
     brls::Logger::info("VideoDecoder: Waiting for IDR frame to start decoding");
 
-    m_frame_queue.setLimit(3);
+    size_t frame_queue_limit = SettingsManager::getInstance()->getLowLatencyMode() ? 1 : 3;
+    m_frame_queue.setLimit(frame_queue_limit);
 
     m_tmp_frame = av_frame_alloc();
     if (!m_tmp_frame)
@@ -147,46 +149,58 @@ bool VideoDecoder::decode(uint8_t* buf, size_t buf_size)
         }
     }
 
+    // Fully drain all frames the decoder has already produced.
+    // FFmpeg may output multiple frames for one packet, and send_packet(EAGAIN)
+    // means we must receive pending frames before retrying the send.
+    auto drain_frames = [this]() -> bool {
+        while (true)
+        {
+            int receive_result = avcodec_receive_frame(m_codec_context, m_tmp_frame);
+            if (receive_result == 0)
+            {
+                AVFrame* queued_frame = av_frame_alloc();
+                if (!queued_frame)
+                {
+                    brls::Logger::error("VideoDecoder: Failed to allocate queued frame");
+                    return false;
+                }
+
+                av_frame_move_ref(queued_frame, m_tmp_frame);
+                m_frame_queue.push(queued_frame);
+                continue;
+            }
+
+            if (receive_result == AVERROR(EAGAIN) || receive_result == AVERROR_EOF)
+                return true;
+
+            char errbuf[128];
+            av_make_error_string(errbuf, sizeof(errbuf), receive_result);
+            brls::Logger::warning("VideoDecoder: avcodec_receive_frame failed: {}", errbuf);
+            return false;
+        }
+    };
+
     AVPacketGuard packet;
     packet->data = buf;
     packet->size = buf_size;
 
-send_packet:
-    int r = avcodec_send_packet(m_codec_context, packet);
-    if (r != 0)
+    while (true)
     {
-        if (r == AVERROR(EAGAIN))
-        {
-            brls::Logger::error("AVCodec internal buffer is full removing frames before pushing");
-            r = avcodec_receive_frame(m_codec_context, m_tmp_frame);
-            if (r != 0)
-            {
-                brls::Logger::error("Failed to pull frame");
-                return false;
-            }
-            goto send_packet;
-        }
-        else
+        int r = avcodec_send_packet(m_codec_context, packet);
+        if (r == 0)
+            return drain_frames();
+
+        if (r != AVERROR(EAGAIN))
         {
             char errbuf[128];
             av_make_error_string(errbuf, sizeof(errbuf), r);
             brls::Logger::error("Failed to push frame: {}", errbuf);
             return false;
         }
-    }
 
-    r = avcodec_receive_frame(m_codec_context, m_tmp_frame);
-
-    if (r == 0)
-    {
-        m_frame_queue.push(m_tmp_frame);
+        if (!drain_frames())
+            return false;
     }
-    else if (r != AVERROR(EAGAIN))
-    {
-        brls::Logger::warning("VideoDecoder: avcodec_receive_frame failed: {}", r);
-    }
-
-    return true;
 }
 
 void VideoDecoder::flush()

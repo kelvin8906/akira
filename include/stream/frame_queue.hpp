@@ -2,7 +2,7 @@
 #define AKIRA_IO_FRAME_QUEUE_HPP
 
 #include <mutex>
-#include <queue>
+#include <vector>
 #include <functional>
 #include <chrono>
 
@@ -22,7 +22,7 @@ public:
     FrameQueue(const FrameQueue&) = delete;
     FrameQueue& operator=(const FrameQueue&) = delete;
 
-    void setLimit(size_t limit) { m_limit = limit; }
+    void setLimit(size_t limit);
 
     void push(AVFrame* frame);
 
@@ -41,9 +41,11 @@ public:
     void cleanup();
 
 private:
-    std::queue<AVFrame*> m_queue;
+    std::vector<AVFrame*> m_ring;
     AVFrame* m_buffer_frame = nullptr;
     size_t m_limit = DEFAULT_LIMIT;
+    size_t m_head = 0;
+    size_t m_count = 0;
     size_t m_frames_dropped = 0;
     size_t m_fake_frame_used = 0;
     mutable std::mutex m_mutex;
