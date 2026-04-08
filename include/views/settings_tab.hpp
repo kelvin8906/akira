@@ -31,6 +31,7 @@ private:
     BRLS_BIND(brls::BooleanCell, sleepOnExitToggle, "settings/sleepOnExit");
     BRLS_BIND(brls::DetailCell, buttonMappingCell, "settings/buttonMapping");
     BRLS_BIND(brls::BooleanCell, enableThreadAffinityToggle, "settings/enableThreadAffinity");
+    BRLS_BIND(brls::BooleanCell, lowLatencyModeToggle, "settings/lowLatencyMode");
     BRLS_BIND(brls::BooleanCell, holepunchRetryToggle, "settings/holepunchRetry");
     BRLS_BIND(brls::BooleanCell, requestIdrOnFecFailureToggle, "settings/requestIdrOnFecFailure");
     BRLS_BIND(brls::SliderCell, packetLossMaxSlider, "settings/packetLossMax");
@@ -96,6 +97,7 @@ private:
     void initSleepOnExitToggle();
     void initButtonMappingCell();
     void initEnableThreadAffinityToggle();
+    void initLowLatencyModeToggle();
     void initHolepunchRetryToggle();
     void initRequestIdrOnFecFailureToggle();
     void initPacketLossMaxSlider();
